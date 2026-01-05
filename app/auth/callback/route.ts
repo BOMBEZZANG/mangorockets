@@ -8,12 +8,13 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
   const next = requestUrl.searchParams.get('next') || '/'
 
-  console.log('[Auth Callback] Starting...', { code: code ? 'present' : 'missing', next })
+  // Log full URL for debugging
+  console.log('[Auth Callback] Full URL:', request.url)
+  console.log('[Auth Callback] Search params:', Object.fromEntries(requestUrl.searchParams))
 
   if (code) {
     const cookieStore = await cookies()
 
-    // SSR 클라이언트 생성 (쿠키 기반)
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -35,7 +36,6 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    // OAuth 코드를 세션으로 교환
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     
     console.log('[Auth Callback] Exchange result:', { 
@@ -51,20 +51,12 @@ export async function GET(request: NextRequest) {
 
     if (data?.session?.user) {
       const user = data.session.user
-
-      // 프로필 정보 추출
       const userMetadata = user.user_metadata
       const fullName = userMetadata?.full_name || userMetadata?.name || ''
       const avatarUrl = userMetadata?.avatar_url || userMetadata?.picture || ''
 
-      console.log('[Auth Callback] User info:', { 
-        id: user.id, 
-        email: user.email, 
-        fullName, 
-        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY 
-      })
+      console.log('[Auth Callback] Creating profile for:', user.email)
 
-      // Supabase Admin 클라이언트로 프로필 생성
       if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
         const supabaseAdmin = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -84,16 +76,15 @@ export async function GET(request: NextRequest) {
           })
 
         if (profileError) {
-          console.error('[Auth Callback] Profile upsert error:', profileError)
+          console.error('[Auth Callback] Profile error:', profileError)
         } else {
-          console.log('[Auth Callback] Profile created/updated successfully')
+          console.log('[Auth Callback] Profile created successfully')
         }
-      } else {
-        console.error('[Auth Callback] SUPABASE_SERVICE_ROLE_KEY is not set!')
       }
     }
+  } else {
+    console.log('[Auth Callback] No code in URL - redirecting to:', next)
   }
 
-  // 원래 가려던 페이지로 리다이렉트
   return NextResponse.redirect(new URL(next, requestUrl.origin))
 }
