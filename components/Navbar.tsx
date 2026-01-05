@@ -23,6 +23,7 @@ export default function Navbar() {
   const [loading, setLoading] = useState(true)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement>(null)
+  const initialLoadCompleteRef = useRef(false)
 
   // 클라이언트 마운트 확인 (hydration 오류 방지)
   useEffect(() => {
@@ -43,7 +44,6 @@ export default function Navbar() {
 
   useEffect(() => {
     let isMounted = true
-    let initialLoadComplete = false
 
     const fetchProfile = async (userId: string) => {
       try {
@@ -79,8 +79,8 @@ export default function Navbar() {
       setUser(currentUser)
 
       // Mark initial load complete IMMEDIATELY (before profile fetch)
-      if (!initialLoadComplete) {
-        initialLoadComplete = true
+      if (!initialLoadCompleteRef.current) {
+        initialLoadCompleteRef.current = true
         setLoading(false)
         console.log('[Navbar] Initial load complete')
       }
@@ -95,9 +95,9 @@ export default function Navbar() {
 
     // Fallback: if no auth state change after 2 seconds, stop loading
     const fallbackTimeout = setTimeout(() => {
-      if (isMounted && !initialLoadComplete) {
+      if (isMounted && !initialLoadCompleteRef.current) {
         console.log('[Navbar] Fallback timeout - no auth state received')
-        initialLoadComplete = true
+        initialLoadCompleteRef.current = true
         setLoading(false)
       }
     }, 2000)
