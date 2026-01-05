@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase'
 import Image from 'next/image'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
-import DevRoleSwitcher from '@/components/DevRoleSwitcher'
 
 interface Tag {
   id: string
@@ -619,7 +618,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Navbar />
-      <DevRoleSwitcher />
       <Suspense fallback={
         <div className="pt-32 flex items-center justify-center">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
