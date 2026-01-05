@@ -1,10 +1,12 @@
+import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Supabase Admin 클라이언트 (프로필 생성용)
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL\!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY\!
 )
 
 export async function GET(request: NextRequest) {
@@ -13,16 +15,34 @@ export async function GET(request: NextRequest) {
   const next = requestUrl.searchParams.get('next') || '/'
 
   if (code) {
-    // Supabase 클라이언트 생성 (쿠키 기반)
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    const cookieStore = await cookies()
+
+    // SSR 클라이언트 생성 (쿠키 기반)
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL\!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY\!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch {
+              // Ignore errors
+            }
+          },
+        },
+      }
     )
 
     // OAuth 코드를 세션으로 교환
     const { data: { session }, error } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!error && session?.user) {
+    if (\!error && session?.user) {
       const user = session.user
 
       // 프로필 정보 추출
