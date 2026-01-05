@@ -42,7 +42,7 @@ CREATE POLICY "Instructors can add tags to their courses" ON course_tags
     EXISTS (
       SELECT 1 FROM courses
       WHERE courses.id = course_id
-      AND courses.instructor = auth.uid()::text
+      AND courses.instructor = auth.uid()
     )
   );
 
@@ -52,7 +52,7 @@ CREATE POLICY "Instructors can remove tags from their courses" ON course_tags
     EXISTS (
       SELECT 1 FROM courses
       WHERE courses.id = course_id
-      AND courses.instructor = auth.uid()::text
+      AND courses.instructor = auth.uid()
     )
   );
 

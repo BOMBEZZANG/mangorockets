@@ -26,7 +26,7 @@ CREATE POLICY "Instructors can create chapters" ON chapters
   FOR INSERT WITH CHECK (
     EXISTS (
       SELECT 1 FROM courses
-      WHERE courses.id = chapter_id
+      WHERE courses.id = course_id
       AND courses.instructor = auth.uid()
     )
   );
