@@ -42,15 +42,32 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
+    let isMounted = true
+
     const getUserAndProfile = async () => {
+      console.log('[Navbar] Starting session check...')
+
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        // Add timeout to prevent infinite loading
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Session check timeout')), 5000)
+        })
+
+        const sessionPromise = supabase.auth.getSession()
+
+        const { data: { session }, error: sessionError } = await Promise.race([
+          sessionPromise,
+          timeoutPromise
+        ]) as Awaited<ReturnType<typeof supabase.auth.getSession>>
+
         console.log('[Navbar] Session check:', {
           hasSession: !!session,
           userId: session?.user?.id,
           email: session?.user?.email,
           sessionError
         })
+
+        if (!isMounted) return
 
         const currentUser = session?.user ?? null
         setUser(currentUser)
@@ -64,7 +81,7 @@ export default function Navbar() {
 
           console.log('[Navbar] Profile check:', { profile, profileError })
 
-          if (profile) {
+          if (isMounted && profile) {
             setUserProfile({
               full_name: profile.full_name,
               avatar_url: profile.avatar_url,
@@ -75,11 +92,21 @@ export default function Navbar() {
       } catch (error) {
         console.error('[Navbar] Auth error:', error)
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     getUserAndProfile()
+
+    // Fallback: ensure loading is set to false after 6 seconds no matter what
+    const fallbackTimeout = setTimeout(() => {
+      if (isMounted) {
+        console.log('[Navbar] Fallback timeout triggered')
+        setLoading(false)
+      }
+    }, 6000)
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
@@ -107,7 +134,11 @@ export default function Navbar() {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      clearTimeout(fallbackTimeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const handleLogout = async () => {
