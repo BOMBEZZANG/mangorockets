@@ -110,7 +110,7 @@ CREATE POLICY "Instructors can reply to their course reviews" ON review_replies
       SELECT 1 FROM reviews
       JOIN courses ON courses.id = reviews.course_id
       WHERE reviews.id = review_replies.review_id
-      AND courses.instructor = auth.uid()::text
+      AND courses.instructor = auth.uid()
     )
   );
 

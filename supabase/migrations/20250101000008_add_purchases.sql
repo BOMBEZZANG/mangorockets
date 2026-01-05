@@ -38,7 +38,7 @@ CREATE POLICY "Instructors can view their course purchases" ON purchases
     EXISTS (
       SELECT 1 FROM courses
       WHERE courses.id = purchases.course_id
-      AND courses.instructor = auth.uid()::text
+      AND courses.instructor = auth.uid()
     )
   );
 
