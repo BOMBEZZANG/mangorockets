@@ -43,96 +43,63 @@ export default function Navbar() {
 
   useEffect(() => {
     let isMounted = true
+    let initialLoadComplete = false
 
-    const getUserAndProfile = async () => {
-      console.log('[Navbar] Starting session check...')
-
+    const fetchProfile = async (userId: string) => {
       try {
-        // Add timeout to prevent infinite loading
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Session check timeout')), 5000)
-        })
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url, role')
+          .eq('id', userId)
+          .single()
 
-        const sessionPromise = supabase.auth.getSession()
+        console.log('[Navbar] Profile fetch:', { profile, error })
 
-        const { data: { session }, error: sessionError } = await Promise.race([
-          sessionPromise,
-          timeoutPromise
-        ]) as Awaited<ReturnType<typeof supabase.auth.getSession>>
-
-        console.log('[Navbar] Session check:', {
-          hasSession: !!session,
-          userId: session?.user?.id,
-          email: session?.user?.email,
-          sessionError
-        })
-
-        if (!isMounted) return
-
-        const currentUser = session?.user ?? null
-        setUser(currentUser)
-
-        if (currentUser) {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('full_name, avatar_url, role')
-            .eq('id', currentUser.id)
-            .single()
-
-          console.log('[Navbar] Profile check:', { profile, profileError })
-
-          if (isMounted && profile) {
-            setUserProfile({
-              full_name: profile.full_name,
-              avatar_url: profile.avatar_url,
-              role: (profile.role as UserRole) || 'student',
-            })
-          }
+        if (isMounted && profile && !error) {
+          setUserProfile({
+            full_name: profile.full_name,
+            avatar_url: profile.avatar_url,
+            role: (profile.role as UserRole) || 'student',
+          })
         }
       } catch (error) {
-        console.error('[Navbar] Auth error:', error)
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
+        console.error('[Navbar] Profile fetch error:', error)
       }
     }
 
-    getUserAndProfile()
+    console.log('[Navbar] Setting up auth state listener...')
 
-    // Fallback: ensure loading is set to false after 6 seconds no matter what
-    const fallbackTimeout = setTimeout(() => {
-      if (isMounted) {
-        console.log('[Navbar] Fallback timeout triggered')
-        setLoading(false)
-      }
-    }, 6000)
+    // onAuthStateChange fires immediately with current session
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[Navbar] Auth state change:', { event, hasSession: !!session, email: session?.user?.email })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null)
+      if (!isMounted) return
 
-      if (session?.user) {
-        try {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('full_name, avatar_url, role')
-            .eq('id', session.user.id)
-            .single()
+      const currentUser = session?.user ?? null
+      setUser(currentUser)
 
-          if (!error && profile) {
-            setUserProfile({
-              full_name: profile.full_name,
-              avatar_url: profile.avatar_url,
-              role: (profile.role as UserRole) || 'student',
-            })
-          }
-        } catch (error) {
-          console.error('Profile fetch error:', error)
-        }
+      if (currentUser) {
+        await fetchProfile(currentUser.id)
       } else {
         setUserProfile(null)
       }
+
+      // Mark initial load complete after first auth state event
+      if (!initialLoadComplete) {
+        initialLoadComplete = true
+        setLoading(false)
+        console.log('[Navbar] Initial load complete')
+      }
     })
+
+    // Fallback: if no auth state change after 2 seconds, stop loading
+    const fallbackTimeout = setTimeout(() => {
+      if (isMounted && !initialLoadComplete) {
+        console.log('[Navbar] Fallback timeout - no auth state received')
+        initialLoadComplete = true
+        setLoading(false)
+      }
+    }, 2000)
 
     return () => {
       isMounted = false
