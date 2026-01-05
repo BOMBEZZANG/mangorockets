@@ -70,7 +70,7 @@ export default function Navbar() {
     console.log('[Navbar] Setting up auth state listener...')
 
     // onAuthStateChange fires immediately with current session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('[Navbar] Auth state change:', { event, hasSession: !!session, email: session?.user?.email })
 
       if (!isMounted) return
@@ -78,17 +78,18 @@ export default function Navbar() {
       const currentUser = session?.user ?? null
       setUser(currentUser)
 
-      if (currentUser) {
-        await fetchProfile(currentUser.id)
-      } else {
-        setUserProfile(null)
-      }
-
-      // Mark initial load complete after first auth state event
+      // Mark initial load complete IMMEDIATELY (before profile fetch)
       if (!initialLoadComplete) {
         initialLoadComplete = true
         setLoading(false)
         console.log('[Navbar] Initial load complete')
+      }
+
+      // Fetch profile in background (don't block the UI)
+      if (currentUser) {
+        fetchProfile(currentUser.id)
+      } else {
+        setUserProfile(null)
       }
     })
 
