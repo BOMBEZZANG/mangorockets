@@ -27,7 +27,6 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // 세션 갱신 (중요: 이 호출이 쿠키를 새로 설정함)
   await supabase.auth.getUser()
 
   return supabaseResponse
@@ -35,6 +34,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|auth/callback|api/|.*[.](?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
