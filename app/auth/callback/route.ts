@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
 
     // SSR 클라이언트 생성 (쿠키 기반)
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL\!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY\!,
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           getAll() {
@@ -39,8 +39,8 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     
     console.log('[Auth Callback] Exchange result:', { 
-      hasSession: \!\!data?.session, 
-      hasUser: \!\!data?.user,
+      hasSession: !!data?.session, 
+      hasUser: !!data?.user,
       error: error?.message 
     })
 
@@ -61,14 +61,14 @@ export async function GET(request: NextRequest) {
         id: user.id, 
         email: user.email, 
         fullName, 
-        hasServiceKey: \!\!process.env.SUPABASE_SERVICE_ROLE_KEY 
+        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY 
       })
 
       // Supabase Admin 클라이언트로 프로필 생성
       if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
         const supabaseAdmin = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL\!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY\!
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
         )
 
         const { error: profileError } = await supabaseAdmin
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
           console.log('[Auth Callback] Profile created/updated successfully')
         }
       } else {
-        console.error('[Auth Callback] SUPABASE_SERVICE_ROLE_KEY is not set\!')
+        console.error('[Auth Callback] SUPABASE_SERVICE_ROLE_KEY is not set!')
       }
     }
   }
