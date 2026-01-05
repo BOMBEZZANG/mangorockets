@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(npm install:*)",
+      "Bash(findstr:*)",
+      "WebSearch",
+      "Bash(npx next build)",
+      "Bash(npx create-next-app:*)",
+      "Bash(npm run build:*)",
+      "Bash(dir:*)",
+      "Bash(tree:*)",
+      "Bash(for dir in app components lib types supabase Data public .claude)",
+      "Bash(do if [ -d \"$dir\" ])",
+      "Bash(then cp -r \"$dir\" ../mangorocket/)",
+      "Bash(echo:*)",
+      "Bash(fi)",
+      "Bash(done)"
+    ]
+  }
+}
