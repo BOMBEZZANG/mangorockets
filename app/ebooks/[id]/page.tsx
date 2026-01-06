@@ -66,6 +66,9 @@ export default function EbookDetailPage() {
           .single()
 
         if (ebookError || !ebookData) {
+          console.error('Ebook fetch error:', ebookError)
+          console.log('User ID:', user?.id)
+          console.log('Ebook ID:', ebookId)
           setError('E-book을 찾을 수 없습니다.')
           setIsLoading(false)
           return
