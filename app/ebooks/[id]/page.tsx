@@ -76,6 +76,13 @@ export default function EbookDetailPage() {
 
         // Check if ebook is published OR user is the instructor
         const isInstructor = user && ebookData.instructor === user.id
+        console.log('Debug ebook access:', {
+          published: ebookData.published,
+          isInstructor,
+          ebookInstructor: ebookData.instructor,
+          userId: user?.id,
+          match: ebookData.instructor === user?.id
+        })
         if (!ebookData.published && !isInstructor) {
           setError('E-book을 찾을 수 없습니다.')
           setIsLoading(false)
