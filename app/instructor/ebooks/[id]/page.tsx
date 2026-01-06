@@ -7,7 +7,7 @@ import ThumbnailUploader from '@/components/ThumbnailUploader'
 import EbookUploader from '@/components/EbookUploader'
 import type { Ebook } from '@/types/ebook'
 
-const CATEGORIES = ['디지털 마케팅', '콘텐츠 마케팅', 'SNS 마케팅', '퍼포먼스 마케팅', '브랜드 마케팅', '이메일 마케팅', 'SEO 마케팅', '마케팅 자동화', '기타']
+const CATEGORIES = ['디지털 마케팅', '콘텐츠 마케팅', 'SNS 마케팅', '퍼포먼스 마케팅', '브랜드 마케팅', '바이브 코딩', '자동화 프로그램', '기타']
 const LEVELS = ['입문', '중급', '고급']
 
 export default function EditEbookPage() {
