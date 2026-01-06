@@ -35,6 +35,13 @@ function formatFileSize(bytes: number | null) {
   return `${mb.toFixed(1)}MB`
 }
 
+function getPreviewPdfUrl(path: string | null): string | null {
+  if (!path) return null
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!supabaseUrl) return null
+  return `${supabaseUrl}/storage/v1/object/public/ebook-previews/${path}`
+}
+
 export default function EbookDetailPage() {
   const params = useParams()
   const ebookId = params.id as string
@@ -73,43 +80,69 @@ export default function EbookDetailPage() {
           return
         }
 
-        // Fetch instructor profile separately
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('id, name, avatar_url')
-          .eq('id', ebookData.instructor)
-          .single()
+        // Fetch instructor profile separately (might fail due to RLS)
+        let profileData = null
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('id, name, avatar_url, instructor_name')
+            .eq('id', ebookData.instructor)
+            .maybeSingle()
+
+          if (data) {
+            profileData = {
+              id: data.id,
+              name: data.instructor_name || data.name,
+              avatar_url: data.avatar_url
+            }
+          }
+        } catch {
+          // Ignore profile fetch errors
+        }
 
         setEbook({
           ...ebookData,
           profiles: profileData
         })
 
-        // Fetch tags
-        const { data: tagsData } = await supabase
-          .from('ebook_tags')
-          .select('tags:tag_id (id, name)')
-          .eq('ebook_id', ebookId)
+        // Fetch tags (ignore errors)
+        try {
+          const { data: ebookTagsData } = await supabase
+            .from('ebook_tags')
+            .select('tag_id')
+            .eq('ebook_id', ebookId)
 
-        if (tagsData) {
-          const formattedTags = (tagsData as unknown as { tags: { id: string; name: string } | null }[])
-            .map((t) => t.tags)
-            .filter((tag): tag is { id: string; name: string } => tag !== null)
-          setTags(formattedTags)
+          if (ebookTagsData && ebookTagsData.length > 0) {
+            const tagIds = ebookTagsData.map(t => t.tag_id)
+            const { data: tagsData } = await supabase
+              .from('tags')
+              .select('id, name')
+              .in('id', tagIds)
+
+            if (tagsData) {
+              setTags(tagsData)
+            }
+          }
+        } catch {
+          // Ignore tag fetch errors
         }
 
-        // Fetch rating
-        const { data: ratingData } = await supabase
-          .from('ebook_ratings')
-          .select('*')
-          .eq('ebook_id', ebookId)
-          .single()
+        // Fetch rating (ignore errors - view might not exist)
+        try {
+          const { data: reviewsData } = await supabase
+            .from('ebook_reviews')
+            .select('rating')
+            .eq('ebook_id', ebookId)
 
-        if (ratingData) {
-          setRating({
-            average: ratingData.average_rating,
-            count: ratingData.review_count,
-          })
+          if (reviewsData && reviewsData.length > 0) {
+            const avg = reviewsData.reduce((sum, r) => sum + r.rating, 0) / reviewsData.length
+            setRating({
+              average: Math.round(avg * 10) / 10,
+              count: reviewsData.length,
+            })
+          }
+        } catch {
+          // Ignore rating fetch errors
         }
 
       } catch (err) {
@@ -316,14 +349,14 @@ export default function EbookDetailPage() {
             )}
 
             {/* Preview Section */}
-            {ebook.preview_pdf_path && (
+            {ebook.preview_pdf_path && getPreviewPdfUrl(ebook.preview_pdf_path) && (
               <div className="rounded-2xl bg-white p-6 shadow-sm">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">미리보기</h2>
                 <p className="text-gray-600 mb-4">
                   구매 전 5페이지를 미리 확인해 보세요.
                 </p>
                 <a
-                  href={ebook.preview_pdf_path}
+                  href={getPreviewPdfUrl(ebook.preview_pdf_path)!}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full border-2 border-orange-500 px-6 py-3 text-sm font-semibold text-orange-500 hover:bg-orange-50 transition-colors"

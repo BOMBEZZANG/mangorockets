@@ -43,7 +43,7 @@ export default function EbookPurchaseButton({
         .select('id')
         .eq('user_id', user.id)
         .eq('ebook_id', ebookId)
-        .single()
+        .maybeSingle()
 
       setIsPurchased(!!purchase)
 
@@ -54,7 +54,7 @@ export default function EbookPurchaseButton({
           .select('id')
           .eq('user_id', user.id)
           .eq('ebook_id', ebookId)
-          .single()
+          .maybeSingle()
 
         setIsInCart(!!cartItem)
       }
