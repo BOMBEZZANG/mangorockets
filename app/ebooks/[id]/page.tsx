@@ -282,13 +282,13 @@ export default function EbookDetailPage() {
             )}
 
             {/* Thumbnail */}
-            <div className="relative aspect-[3/4] max-w-md overflow-hidden rounded-2xl bg-gray-100 shadow-lg">
+            <div className="relative aspect-[3/4] max-w-md overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 shadow-lg">
               {ebook.thumbnail ? (
                 <Image
                   src={ebook.thumbnail}
                   alt={ebook.title}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   priority
                 />
               ) : (

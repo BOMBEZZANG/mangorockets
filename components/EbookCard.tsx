@@ -40,13 +40,13 @@ export default function EbookCard({ ebook }: EbookCardProps) {
     <Link href={`/ebooks/${ebook.id}`}>
       <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
         {/* Thumbnail */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
           {ebook.thumbnail ? (
             <Image
               src={ebook.thumbnail}
               alt={ebook.title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-contain transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-gradient-to-br from-orange-100 to-yellow-100">
