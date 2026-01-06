@@ -18,12 +18,14 @@ const STEPS = [
 ]
 
 const CATEGORIES = [
-  '메이크업',
-  '스킨케어',
-  '헤어',
-  '네일',
-  '퍼스널 컬러',
-  '뷰티 창업',
+  '디지털 마케팅',
+  '콘텐츠 마케팅',
+  'SNS 마케팅',
+  '퍼포먼스 마케팅',
+  '브랜드 마케팅',
+  '이메일 마케팅',
+  'SEO 마케팅',
+  '마케팅 자동화',
   '기타',
 ]
 
@@ -474,7 +476,7 @@ export default function NewCoursePage() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="예: 초보자를 위한 데일리 메이크업 마스터"
+                  placeholder="예: 초보자를 위한 SNS 마케팅 마스터 클래스"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50"
                 />
               </div>

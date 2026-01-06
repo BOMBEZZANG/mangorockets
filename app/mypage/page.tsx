@@ -563,7 +563,7 @@ export default function MyPage() {
                 <div className="text-4xl">🎓</div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900">강사가 되어보세요!</h3>
-                  <p className="text-sm text-gray-600">나만의 뷰티 노하우를 공유하고 수익을 창출하세요</p>
+                  <p className="text-sm text-gray-600">나만의 마케팅 노하우를 공유하고 수익을 창출하세요</p>
                 </div>
                 <Link
                   href="/instructor/apply"

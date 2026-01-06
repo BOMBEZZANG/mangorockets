@@ -139,7 +139,7 @@ export default function CreateLivePage() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="예: 봄 메이크업 라이브 특강"
+            placeholder="예: SNS 마케팅 라이브 특강"
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-colors"
             required
           />

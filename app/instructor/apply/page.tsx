@@ -6,13 +6,15 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 const TOPIC_OPTIONS = [
-  '메이크업',
-  '피부관리 / 스킨케어',
-  '헤어 스타일링',
-  '네일 / 왁싱',
-  '퍼스널 컬러',
-  '뷰티 창업 / 샵 운영',
-  '뷰티 마케팅 / SNS 브랜딩',
+  '디지털 마케팅',
+  '콘텐츠 마케팅',
+  'SNS 마케팅',
+  '퍼포먼스 마케팅',
+  '브랜드 마케팅 / 브랜딩',
+  '이메일 마케팅',
+  'SEO / 검색 마케팅',
+  '마케팅 자동화',
+  '마케팅 창업 / 에이전시 운영',
 ]
 
 const REFERRAL_OPTIONS = [
@@ -182,9 +184,9 @@ export default function InstructorApplyPage() {
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
           {/* 헤더 */}
           <div className="bg-gradient-to-r from-orange-500 to-yellow-500 px-8 py-10 text-center text-white">
-            <div className="text-4xl mb-3">🌸</div>
+            <div className="text-4xl mb-3">🚀</div>
             <h1 className="text-2xl font-bold mb-1">Share Your Knowledge</h1>
-            <p className="text-orange-100">뷰티 온라인 강사 등록</p>
+            <p className="text-orange-100">마케팅 온라인 강사 등록</p>
           </div>
 
           {/* 폼 */}
@@ -214,7 +216,7 @@ export default function InstructorApplyPage() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="예: 김뷰티 또는 ○○뷰티아카데미"
+                placeholder="예: 김마케터 또는 ○○마케팅에이전시"
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-colors"
               />
             </div>
@@ -249,9 +251,9 @@ export default function InstructorApplyPage() {
                 placeholder={`경력, 전문 분야, 강의 주제를 자유롭게 작성해 주세요.
 
 예시:
-안녕하세요. 저는 뷰티 업계에서 5년 이상의 실무 경험을 가진 뷰티 전문가입니다.
-메이크업, 피부관리, 퍼스널 컬러 등 다양한 분야에서 활동해 왔으며,
-초보자도 이해하기 쉬운 실전 중심의 뷰티 강의를 제공합니다.`}
+안녕하세요. 저는 디지털 마케팅 분야에서 5년 이상의 실무 경험을 가진 마케팅 전문가입니다.
+SNS 마케팅, 퍼포먼스 마케팅, 콘텐츠 전략 등 다양한 분야에서 활동해 왔으며,
+초보자도 이해하기 쉬운 실전 중심의 마케팅 강의를 제공합니다.`}
                 rows={6}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-colors resize-none"
               />

@@ -41,7 +41,7 @@ interface Course {
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
-const CATEGORIES = ['메이크업', '스킨케어', '헤어', '네일', '퍼스널 컬러', '뷰티 창업', '기타']
+const CATEGORIES = ['디지털 마케팅', '콘텐츠 마케팅', 'SNS 마케팅', '퍼포먼스 마케팅', '브랜드 마케팅', '이메일 마케팅', 'SEO 마케팅', '마케팅 자동화', '기타']
 const LEVELS = ['입문', '중급', '고급']
 
 export default function CourseDetailPage() {
