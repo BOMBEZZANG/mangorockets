@@ -51,24 +51,15 @@ export default function EbookDetailPage() {
         // Get current user
         const { data: { user } } = await supabase.auth.getUser()
 
-        // Fetch ebook with instructor info
+        // Fetch ebook
         const { data: ebookData, error: ebookError } = await supabase
           .from('ebooks')
-          .select(`
-            *,
-            profiles:instructor (
-              id,
-              name,
-              avatar_url
-            )
-          `)
+          .select('*')
           .eq('id', ebookId)
           .single()
 
         if (ebookError || !ebookData) {
           console.error('Ebook fetch error:', ebookError)
-          console.log('User ID:', user?.id)
-          console.log('Ebook ID:', ebookId)
           setError('E-book을 찾을 수 없습니다.')
           setIsLoading(false)
           return
@@ -76,20 +67,23 @@ export default function EbookDetailPage() {
 
         // Check if ebook is published OR user is the instructor
         const isInstructor = user && ebookData.instructor === user.id
-        console.log('Debug ebook access:', {
-          published: ebookData.published,
-          isInstructor,
-          ebookInstructor: ebookData.instructor,
-          userId: user?.id,
-          match: ebookData.instructor === user?.id
-        })
         if (!ebookData.published && !isInstructor) {
           setError('E-book을 찾을 수 없습니다.')
           setIsLoading(false)
           return
         }
 
-        setEbook(ebookData)
+        // Fetch instructor profile separately
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('id, name, avatar_url')
+          .eq('id', ebookData.instructor)
+          .single()
+
+        setEbook({
+          ...ebookData,
+          profiles: profileData
+        })
 
         // Fetch tags
         const { data: tagsData } = await supabase
