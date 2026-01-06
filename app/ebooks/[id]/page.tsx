@@ -48,6 +48,9 @@ export default function EbookDetailPage() {
   useEffect(() => {
     async function fetchEbook() {
       try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+
         // Fetch ebook with instructor info
         const { data: ebookData, error: ebookError } = await supabase
           .from('ebooks')
@@ -60,10 +63,17 @@ export default function EbookDetailPage() {
             )
           `)
           .eq('id', ebookId)
-          .eq('published', true)
           .single()
 
-        if (ebookError) {
+        if (ebookError || !ebookData) {
+          setError('E-book을 찾을 수 없습니다.')
+          setIsLoading(false)
+          return
+        }
+
+        // Check if ebook is published OR user is the instructor
+        const isInstructor = user && ebookData.instructor === user.id
+        if (!ebookData.published && !isInstructor) {
           setError('E-book을 찾을 수 없습니다.')
           setIsLoading(false)
           return
@@ -149,6 +159,27 @@ export default function EbookDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-6xl px-4 py-8">
+        {/* Unpublished Banner */}
+        {!ebook.published && (
+          <div className="mb-6 rounded-xl bg-yellow-50 border border-yellow-200 p-4">
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div className="flex-1">
+                <p className="font-medium text-yellow-800">이 E-book은 아직 공개되지 않았습니다</p>
+                <p className="text-sm text-yellow-600">공개 설정을 변경하려면 수정 페이지로 이동하세요.</p>
+              </div>
+              <Link
+                href={`/instructor/ebooks/${ebook.id}`}
+                className="px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600"
+              >
+                수정하기
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm">
           <ol className="flex items-center gap-2">
